@@ -24,9 +24,14 @@ Monorepo de una tienda en español: una aplicación Next.js 16 con App Router si
 │   ├── package.json
 │   ├── next.config.ts
 │   └── Dockerfile
+├── mysql/
+│   ├── conf.d/charset.cnf      # Valores predeterminados utf8mb4
+│   └── Dockerfile              # Extiende la imagen oficial MySQL 8.0
 ├── docker-compose.yml
 └── .env.example
 ```
+
+Los tres servicios (`frontend`, `backend` y `mysql`) tienen un Dockerfile propio. Compose construye las imágenes y las conecta a la red interna del proyecto.
 
 ## Arquitectura
 
@@ -47,6 +52,8 @@ flowchart LR
 El frontend separa las etapas `deps`, `builder` y `runner`. Primero copia solo `package.json` y `package-lock.json` y ejecuta `npm ci`, de modo que los cambios de código no invalidan la capa de dependencias. El builder ejecuta `npm run build` con `output: "standalone"`; el runner copia únicamente `.next/standalone`, `.next/static` y `public`, y arranca `node server.js`.
 
 El backend separa dependencias Composer y runtime PHP. Composer copia primero `composer.json` y `composer.lock` y ejecuta la instalación de producción; luego incorpora la aplicación y genera el autoloader optimizado. La imagen runtime solo contiene PHP-FPM, las extensiones necesarias, Nginx, Supervisor, la aplicación y `vendor`. Los manifiestos cambian con menos frecuencia que el código, por lo que quedan en capas reutilizables.
+
+La imagen personalizada de MySQL extiende `mysql:8.0` y copia `mysql/conf.d/charset.cnf` para establecer `utf8mb4` y `utf8mb4_unicode_ci` como valores predeterminados del servidor y del cliente. Mantiene intactos el entrypoint y el comando oficiales; Compose proporciona las credenciales mediante variables de entorno. No hay `init.sql`: las migraciones de Laravel crean y mantienen el esquema de la aplicación.
 
 Laravel ejecuta `migrate --force`, `config:cache` y `view:cache` al iniciar. No se ejecuta `route:cache`: `backend/routes/web.php` define la ruta `/` con una closure, que Laravel no puede serializar para esa caché. La API en `backend/routes/api.php` sí usa controladores.
 
