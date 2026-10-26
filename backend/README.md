@@ -7,7 +7,7 @@ El proyecto incluye autenticación por tokens con Laravel Sanctum, CRUD de produ
 ## Tecnologías utilizadas
 
 - Laravel 12
-- PHP 8.2 o superior
+- PHP 8.4.1 o superior
 - MySQL
 - Laravel Sanctum
 - Swagger / OpenAPI
@@ -64,7 +64,7 @@ Por esta razón, la aplicación no registra pagos ficticios ni cambia una orden 
 
 Antes de instalar el proyecto se necesita:
 
-- PHP 8.2 o superior
+- PHP 8.4.1 o superior
 - Composer
 - MySQL
 - Git
